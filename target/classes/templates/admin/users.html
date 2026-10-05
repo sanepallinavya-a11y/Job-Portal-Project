@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: html_head('User Management - Admin')}"></head>
+<body class="bg-light">
+
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <!-- ALERTS -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="py-5">
+        <div class="container">
+            <!-- HEADER -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h3 class="fw-bold mb-1">User Management</h3>
+                    <p class="text-muted small mb-0">Total of <span class="fw-bold text-dark" th:text="${totalUsers}">0</span> registered platform users</p>
+                </div>
+                <a th:href="@{/admin/dashboard}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Admin Dashboard
+                </a>
+            </div>
+
+            <!-- USERS TABLE -->
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-custom align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user, stat : ${users}">
+                                <td class="text-muted" th:text="${stat.count}">1</td>
+                                <td>
+                                    <div class="fw-bold text-dark" th:text="${user.fullName}">John Doe</div>
+                                </td>
+                                <td>
+                                    <span th:text="${user.email}">user@example.com</span>
+                                </td>
+                                <td class="small text-muted" th:text="${user.phone}">9876543210</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${user.role.name() == 'ADMIN'} ? 'badge-role-admin' : (${user.role.name() == 'RECRUITER'} ? 'badge-role-recruiter' : 'badge-role-seeker')"
+                                          th:text="${user.role}">JOB_SEEKER</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${user.active} ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'"
+                                          th:text="${user.active} ? 'Active' : 'Inactive'">Active</span>
+                                </td>
+                                <td class="small text-muted" th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">01 Jan 2026</td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-1" th:if="${currentUser.id != user.id}">
+                                        <!-- Toggle Status Form -->
+                                        <form th:action="@{/admin/users/toggle-status/{id}(id=${user.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm"
+                                                    th:classappend="${user.active} ? 'btn-outline-warning' : 'btn-outline-success'"
+                                                    th:title="${user.active} ? 'Deactivate User' : 'Activate User'">
+                                                <i class="bi" th:classappend="${user.active} ? 'bi-person-slash' : 'bi-person-check'"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete User Form -->
+                                        <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" class="d-inline confirm-action"
+                                              data-confirm-message="Are you sure you want to permanently delete this user account?">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete User">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <span class="badge bg-secondary-subtle text-secondary" th:if="${currentUser.id == user.id}">Current User</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>
